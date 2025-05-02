@@ -1,5 +1,8 @@
+
+# iRule to restrict access to a datagroup named "trusted_users". This datagroup can be created in the BIG-IP WebUI
+
 when CLIENT_ACCEPTED  {
-  if { [matchclass [IP::client_addr] equals $::trustedAddresses] }{
+  if { [class match [IP::client_addr] equals "trusted_users" ] }{
     #Uncomment the line below to turn on logging.
     #log local0.  "Valid client IP: [IP::client_addr] - forwarding traffic"
     forward
