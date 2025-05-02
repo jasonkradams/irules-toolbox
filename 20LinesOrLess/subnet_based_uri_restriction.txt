@@ -1,18 +1,18 @@
-# Create an F5 iRule that restricts access to the "/down.php" URI based on client IP address. The iRule should log all incoming requests, check if the URI contains "/down.php", and reject connections from any IP address not in the 75.66.12.0/24 or 15.150.0.0/16 subnets. When blocking access, log the attempt, disable all further events, and reject the connection.
+# iRule to block access to URIs which contain /down.php, unless the cilient is connecting from  75.66.12.0/255.255.255.0 or 15.150.0.0/255.255.0.0
 
 when HTTP_REQUEST priority 500 {
     # Log all incoming requests with client IP, hostname, and URI
     log local0. " Request in [IP::client_addr] [HTTP::host][HTTP::uri]"
-    
+
     # Check if the URI contains "/down.php" AND the client IP is NOT in the allowed subnets
     # Allowed subnets: 75.66.12.0/24 and 15.150.0.0/16
-    if { ( [HTTP::uri] contains "/down.php" ) and not ( ( [IP::addr [IP::client_addr] equals 75.66.12.0/255.255.255.0] ) or ( [IP::addr [IP::client_addr] equals 15.150.0.0/255.255.0.0] ) ) } {
+    if { ( [HTTP::uri -normalized] contains "/down.php" ) and not ( ( [IP::addr [IP::client_addr] equals 75.66.12.0/255.255.255.0] ) or ( [IP::addr [IP::client_addr] equals 15.150.0.0/255.255.0.0] ) ) } {
         # Log blocked access attempts
         log local0. " Blocked access [IP::client_addr] [HTTP::host][HTTP::uri]"
-        
+
         # Disable all further events for this connection
         event disable all
-        
+
         # Reject the connection
         reject
     }
