@@ -1,11 +1,17 @@
+# Perform a lookup of the URI against a datagroup containing allowed URLs. 
+# If the URL is allowed, check that the client IP address is in the Allowed-IPs datagroup
+
 when HTTP_REQUEST {
-  if { [class match [string tolower [HTTP::uri]] eq "Allowed-URIs" ] }{
+  if { [class match [string tolower [HTTP::uri -normalized]] eq "Allowed-URIs" ] }{
     if { [class match [IP::client_addr] eq "Allowed-IPs" ] }{
       # Do not interfere (Allowed)
       return
     } else {
-      # Not allowed
+      # Not allowed, not from an allowed IP
       drop
     }
+  } else {
+    # Not allowed, not an allowed URL
+    drop
   }
 }
