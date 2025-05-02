@@ -1,16 +1,26 @@
-### NOTE ###
-# Look into the after command to obviate the need for this iRule
-### END NOTE ###
+# iRule to write a log message a once every 10 seconds if there are fewer than 3 pool members available.
 
 when RULE_INIT {
-  # Initialize a variable to track the last time a log message was made
-  set static::last_log_timestamp [clock seconds]
-  # Shortest interval (in seconds) to log a message
-  set static::min_log_interval 60
+  # Option 1 - All processors should log every 10 seconds
+  after 10000 -periodic {
+    set static::log_data 1
+  }
+
+  # Option 2 - Only the first TMM on the first blade should log at most every 10 seconds
+  if {[TMM::cmp_unit] == 0 && [TMM::cmp_group] == 0 } {
+      after 10000 -periodic {
+          set static::log_data 1
+      }
+  }
+
+  # Option 3 - Use table to co-ordinate logging between processors - not implemented as this will have performance impact and will be mildly complicated
 }
+
 when CLIENT_ACCEPTED {
-  # Check if there are two or less active members in the default pool
-  if {[active_members [LB::server pool]] < 3 and [expr {[clock seconds] - $static::last_log_timestamp}] > $static::min_log_interval}{
+  # Check if there are two or fewer active members in the default pool
+  if {[active_members [LB::server pool]] < 3 and $static::log_data}{
     log local0. "[virtual name], [LB::server pool]: [active_members [LB::server pool]] members available!"
+    # Set the flag to stop another message until the after - periodic runs and resets the flag to enable messaging again
+    set static::log_data 0
   }
 }
