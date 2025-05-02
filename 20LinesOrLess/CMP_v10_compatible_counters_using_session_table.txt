@@ -1,9 +1,10 @@
+# An iRule to track the number of requests made to a particular VIP. The table command is used, which will sync to a standby unit (If present and operational)
+
 when HTTP_REQUEST priority 500 {
    set vip [virtual name]
-   set value [session lookup uie "${vip}_my_counter"]
-   if { $value eq "" } {
-      session add uie "${vip}_my_counter" 0
-   } else {
-      session add uie "${vip}_my_counter" [expr {$value + 1}]
+   set count [table incr -- $vip] 
+   # The table incr command doesn't allow a timeout to be set, the default of 180 seconds will be used. For the first use of the table, set the timeout to indefinite
+   if { $count eq 1 } {
+      table timeout $vip indef
    }
 }
