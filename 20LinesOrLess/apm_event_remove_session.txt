@@ -1,5 +1,8 @@
+# iRule which allows a form of step-up authetication. If the user makes a request to /ecp, and the session.custom.mfa parameter is not set, invalidate the session and redirect them. APM will then perform 2 factor authentication
+# Similar results may be achievable with per request policy
+
 when ACCESS_ACL_ALLOWED {
-    if { [HTTP::uri] starts_with "/ecp" } {
+    if { [HTTP::uri -normalized] starts_with "/ecp" } {
         if { [ACCESS::session data get session.custom.mfa] != 1 } {
             ACCESS::session remove
             ACCESS::respond 301 Location "[HTTP::uri]"
