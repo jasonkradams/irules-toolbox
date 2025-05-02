@@ -1,10 +1,16 @@
+# iRule to direct traffic to a specific node, based on matching content within the URL. Note that could you instead use the pool command if you wished to use full load balancing functionality. 
+# You need to set a default which matches your default pool, otherwise subsequent connections on the same TCP connection (conflow) will continue to be sent to the specified node. 
+
 when HTTP_REQUEST {
-  switch -glob [string tolower [HTTP::uri]] {
+  switch -glob -- [string tolower [HTTP::uri]] {
     "*hypplanning*" {
       node 10.x.x.x%x:x
     }
     "*drmservice*" {
       node 10.x.x.x%x:y
+    }
+    default {
+      pool default_pool
     }
   }
 }
