@@ -1,16 +1,20 @@
+# iRule to limit the number of requests (10) per client IP across a given time period (60 seconds)
+
 when RULE_INIT {
   set static::lifetime 60
   set static::requestlimit 10
 }
 when LB_SELECTED {
+  # Restrict behaviour to a specific user agent
   if { [HTTP::header "User-Agent"] contains "Mozilla" } {
-    #Add a table entry with a lifetime in seconds of the value of $lifetime.
-    table add [IP::client_addr] 1 indefinite $static::lifetime
+    #Add a table entry with a lifetime in seconds of the value of $lifetime. Table add will not create an extry if one exists. Set value to 0, as this value will be incremented in the next command
+    table add [IP::client_addr] 0 indefinite $static::lifetime
+    # Run table incr on this value, this will return the current count after the increment is completed
     if { [table incr [IP::client_addr]] > $static::requestlimit } {
-      #If the user has surpassed the request limit the pool member is reselected
-      log local0. "This server was selected: [LB::server]"
-      LB::reselect
-      log local0. "Selected [LB::server]"
+      if {![HTTP::has_responded]} {
+        HTTP::respond 429 content {<html><body>First and Only Response</body></html>}
+        return
+      }
     }
   }
 }
