@@ -1,6 +1,8 @@
+# iRule to select source address persistence timeout based on URI
+
 when HTTP_REQUEST {
     # Check requested path
-    switch -glob [HTTP::path] {
+    switch -glob -- [HTTP::path] {
        "/apps/aml/*" {
           # Persist client for 10 hours
           persist source_addr 36000
