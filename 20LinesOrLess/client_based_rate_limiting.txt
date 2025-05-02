@@ -4,7 +4,7 @@ when RULE_INIT {
   set static::lifetime 60
   set static::requestlimit 10
 }
-when LB_SELECTED {
+when HTTP_REQUEST {
   # Restrict behaviour to a specific user agent
   if { [HTTP::header "User-Agent"] contains "Mozilla" } {
     #Add a table entry with a lifetime in seconds of the value of $lifetime. Table add will not create an extry if one exists. Set value to 0, as this value will be incremented in the next command
