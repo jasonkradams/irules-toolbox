@@ -1,19 +1,22 @@
+# An iRule to validate the content of a cookie
+
 when RULE_INIT {
-   set ::cookie_to_validate "my_cookie"
-   set ::cookie_validation_debug 1
-   set ::allowed_chars_cookie_value {%[-a-zA-Z0-9_]}
+   # These configuration variables are written to the static::namespace. Be careful to make sure that you don't have duplicate configuration variables with the same name (For example, a similar iRule is used on several virtual servers to perform different validation
+   set static::cookie_to_validate "my_cookie"
+   set static::cookie_validation_debug 1
+   set static::allowed_chars_cookie_value {%[-a-zA-Z0-9_]}
 }
 
 when HTTP_REQUEST {
-   if {[string length [HTTP::cookie value $::cookie_to_validate]]}{
-      if {[HTTP::cookie value $::cookie_to_validate] eq [scan [HTTP::cookie value $::cookie_to_validate] $::allowed_chars_cookie_value]}{
+   if {[string length [HTTP::cookie value $static::cookie_to_validate]]}{
+      if {[HTTP::cookie value $static::cookie_to_validate] eq [scan [HTTP::cookie value $::cookie_to_validate] $static::allowed_chars_cookie_value]}{
          if {$::cookie_validation_debug} {
-           log local0. "Received a request from [IP::client_addr] with legal cookie value: [HTTP::cookie value $::cookie_to_validate]"}
+           log local0. "Received a request from [IP::client_addr] with legal cookie value: [HTTP::cookie value $static::cookie_to_validate]"}
       } else {
-         if {$::cookie_validation_debug}{
-         set len [string length [scan [HTTP::cookie value $::cookie_to_validate] $::allowed_chars_cookie_value]]
-         log local0. "Received a request from [IP::client_addr] with illegal cookie value: [HTTP::cookie value $::cookie_to_validate], \
-            char: [string range [HTTP::cookie value $::cookie_to_validate] $len $len]"}
+         if {$static::cookie_validation_debug}{
+         set len [string length [scan [HTTP::cookie value $::cookie_to_validate] $static::allowed_chars_cookie_value]]
+         log local0. "Received a request from [IP::client_addr] with illegal cookie value: [HTTP::cookie value $static::cookie_to_validate], \
+            char: [string range [HTTP::cookie value $static::cookie_to_validate] $len $len]"}
       }
    }
 }
