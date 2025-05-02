@@ -1,9 +1,9 @@
-# Create an F5 BIG-IP iRule for v10.x and earlier that selectively bypasses web application firewall protection for RPC endpoints. The rule should check if it starts with "/rpc" (case insensitive), and disable ASM protection only for those specific paths while ensuring protection remains enabled for all other application traffic.
+# iRule to disable ASM/WAF for some specific URLs
 
 when HTTP_CLASS_SELECTED priority 500 {
     # Convert the URI to lowercase and check if it starts with "/rpc"
     # This ensures case-insensitive matching for RPC endpoints
-    if { [string tolower [HTTP::uri]] starts_with "/rpc" } {
+    if { [string tolower [HTTP::uri -normalized]] starts_with "/rpc" } {
         # Disable ASM (Application Security Manager) protection for RPC requests
         # This is often done because RPC endpoints may have unique traffic patterns
         # that trigger false positives in the web application firewall
