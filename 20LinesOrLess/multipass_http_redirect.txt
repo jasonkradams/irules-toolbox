@@ -1,8 +1,11 @@
+# Rule to redirect requests which aren't made to www.domain.com to https://www.domain.com/[uri]
+# If the address matches, distribute requests to /us* to pool US_pool, /au* to AU_pool and everything else to default_pool
+
 when HTTP_REQUEST {
   if {not ([string tolower [HTTP::host]] eq "www.domain.com")}{
-    HTTP::redirect http://www.domain.com[HTTP::uri]
+    HTTP::redirect https://www.domain.com[HTTP::uri]
   } else {
-    switch -glob [HTTP::path] {
+    switch -glob -- [HTTP::path] {
       "/us*" {
         pool US_pool
         log local0. "[IP::client_addr]:[TCP::client_port]: using pool US_pool"
