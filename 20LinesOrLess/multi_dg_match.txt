@@ -1,8 +1,9 @@
-# Write an F5 iRule that filters HTTP requests based on URI and client IP. The rule should allow requests only if the URI is in an approved list and the client IP is authorized. Use data groups for the allowed URIs and IPs. Drop any request that doesn't meet both criteria. Keep the code concise and include basic comments.
+# Perform a lookup of the URI against a datagroup containing allowed URLs.
+# If the URL is allowed, check that the client IP address is in the Allowed-IPs datagroup
 
 when HTTP_REQUEST priority 500 {
     # Check if the lowercase URI matches any entry in the "Allowed-URIs" data group
-    if { ![class match -- [string tolower [HTTP::uri]] eq "Allowed-URIs"] } {
+    if { ![class match -- [string tolower [HTTP::uri -normalized]] eq "Allowed-URIs"] } {
         # If URI is not in the allowed list, exit the iRule without taking action
         return
     }
