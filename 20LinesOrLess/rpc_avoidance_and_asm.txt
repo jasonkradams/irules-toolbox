@@ -1,5 +1,7 @@
+# iRule to disable ASM/WAF for some specific URLs
+
 when HTTP_CLASS_SELECTED {
-  if { [string tolower [HTTP::uri]] starts_with "/rpc" } {
+  if { [string tolower [HTTP::uri -normalized]] starts_with "/rpc" } {
     ASM::disable
   } else {
     ASM::enable
