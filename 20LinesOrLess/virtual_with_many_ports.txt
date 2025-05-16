@@ -1,8 +1,7 @@
-# Create an F5 iRule that routes HTTP requests to specific backend nodes based on URI content. The iRule should use case-insensitive pattern matching to check if the URI contains "hypplanning" or "drmservice", and direct matching requests to the appropriate node with specific IP addresses, interfaces, and ports.
+# iRule to direct traffic to a specific node, based on matching content within the URL. Note that could you instead use the pool command if you wished to use full load balancing functionality.
+# You need to set a default which matches your default pool, otherwise subsequent connections on the same TCP connection (conflow) will continue to be sent to the specified node.
 
 when HTTP_REQUEST priority 500 {
-    # This event triggers when an HTTP request is received
-    
     # Use switch with glob pattern matching to examine the lowercase URI
     # -glob enables wildcard matching with * to match any characters
     # -- marks the end of switch options
@@ -21,7 +20,10 @@ when HTTP_REQUEST priority 500 {
             # Route this request to a different backend node with IP 10.x.x.x on interface x and port y
             node 10.x.x.x%x:y
         }
-        # Implicit default case: if none of the patterns match, 
+        # Implicit default case: if none of the patterns match,
         # the request continues to the default pool or next iRule
+        default {
+        pool default_pool
+        }
     }
 }
