@@ -1,3 +1,5 @@
+# iRule to insert a header into requests, indicating if the request was made over HTTP or HTTPS. You can add the same iRule to both HTTP and HTTPS virtual servers
+
 when CLIENT_ACCEPTED priority 500 {
   switch -- [TCP::local_port] {
     443 {
@@ -9,5 +11,5 @@ when CLIENT_ACCEPTED priority 500 {
   }
 }
 when HTTP_REQUEST priority 500 {
-  HTTP::header insert VS_HTTP_PROTO $PROTO
+  HTTP::header insert VS_HTTP_PROTO $proto
 }
