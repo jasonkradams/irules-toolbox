@@ -1,3 +1,6 @@
+# iRule which can be applied to an "all ports" virtual server. The iRule will restrict to ports between 8000 and 8020, selecting pool members based on the port number. This can reduce the number of configuration objects which are required
+# If pool selection is not required, we recommend using AFM for this functionality
+
 when CLIENT_ACCEPTED priority 500 {
     if { ([TCP::local_port] >= 8000) && ([TCP::local_port] <= 8020) } {
         pool mypool_[TCP::local_port]
