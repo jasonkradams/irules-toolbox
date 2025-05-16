@@ -1,5 +1,7 @@
-when HTTP_REQUEST priority 500 {
-  # Parse the fist character in the path
+# iRule for path parsing; the iRule will select pool members based on glob matching, in this example the first letter of the URI will be used to determine the pool member
+
+when HTTP_REQUEST {
+  # Parse the first character in the path
   switch -glob -- [HTTP::path] {
     "/[a-cA-C]*" {
       pool test1
