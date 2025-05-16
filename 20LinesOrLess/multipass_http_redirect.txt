@@ -1,10 +1,11 @@
-# Create an F5 iRule that redirects non-www traffic to www.domain.com and routes requests based on the URI path. The rule should send /us* requests to a US pool, /au* requests to an AU pool, and all others to a default pool. Include basic logging for each routing decision.
+# Rule to redirect requests which aren't made to www.domain.com to https://www.domain.com/[uri]
+# If the address matches, distribute requests to /us* to pool US_pool, /au* to AU_pool and everything else to default_pool
 
 when HTTP_REQUEST priority 500 {
     # Check if the request is not for www.domain.com (case-insensitive)
     if { !([string tolower [HTTP::host]] eq "www.domain.com") } {
         # Redirect to www.domain.com while preserving the original URI
-        HTTP::redirect http://www.domain.com[HTTP::uri]
+        HTTP::redirect https://www.domain.com[HTTP::uri]
         return
     }
 
