@@ -1,4 +1,4 @@
-# Create an F5 iRule that redirects requests from one domain path to another. The iRule should check if the normalized, lowercase combination of host and URI starts with "some.host.com/singleuri", then perform a permanent 301 redirect to "some.other.host.com" while replacing "/singleuri" with "/anotheruri" in the path and preserving any additional path components.
+# iRule to redirect a URL, based on glob matching
 
 when HTTP_REQUEST priority 500 {
     # This event triggers when an HTTP request is received by the virtual server
